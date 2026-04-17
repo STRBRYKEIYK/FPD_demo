@@ -1,0 +1,4 @@
+# Primary OCR engine (mandatory): EasyOCR
+# Completely free, runs fully locally, no API keys, no rate limits.
+# Models (~100 MB for English) are downloaded on first use and cached locally.
+easyocr>=1.7.0

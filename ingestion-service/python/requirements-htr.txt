@@ -1,0 +1,2 @@
+# Deprecated: OCR stack is EasyOCR-only.
+# Keep this file for compatibility with existing setup scripts.
