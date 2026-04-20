@@ -53,9 +53,9 @@ export function AuthProvider({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     try {
       const raw = localStorage.getItem('fpd_demo_dark_mode');
-      return raw != null ? JSON.parse(raw) : false;
+      return raw != null ? JSON.parse(raw) : true;
     } catch {
-      return false;
+      return true;
     }
   });
   const [sessionTimeoutInfo, setSessionTimeoutInfo] = useState({

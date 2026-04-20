@@ -5,7 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FPD Demo</title>
     <link rel="icon" type="image/svg+xml" href="./assets/favicon-CeL-LwwC.svg" />
-    <script type="module" crossorigin src="./assets/index-CDrSWvQD.js"></script>
+    <script>
+      (function applyInitialTheme() {
+        const storageKey = "fpd_demo_dark_mode";
+        let isDark = true;
+
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (raw != null) {
+            isDark = JSON.parse(raw) === true;
+          }
+        } catch (_error) {
+          isDark = true;
+        }
+
+        document.documentElement.classList.toggle("dark", isDark);
+
+        if (document.body) {
+          document.body.classList.toggle("dark", isDark);
+        } else {
+          document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+              document.body.classList.toggle("dark", isDark);
+            },
+            { once: true },
+          );
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-B4L6abqa.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/vendor-D_TJI4Qs.js">
     <link rel="modulepreload" crossorigin href="./assets/excel-zip-vendor-Cg56Rv6R.js">
     <link rel="modulepreload" crossorigin href="./assets/html2canvas-vendor-BD1F0tPC.js">
