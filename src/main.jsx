@@ -5,7 +5,7 @@ import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 
-const routerBasename = import.meta.env.BASE_URL;
+const routerBasename = import.meta.env.PROD ? '/FPD_demo' : '/';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

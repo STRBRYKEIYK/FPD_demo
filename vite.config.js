@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/FPD_demo/' : '/',
+  // Relative production paths let the same build run from /FPD_demo/ and /FPD_demo/dist/.
+  base: mode === 'production' ? './' : '/',
   plugins: [react(), tailwindcss()],
   build: {
     chunkSizeWarningLimit: 1000,
