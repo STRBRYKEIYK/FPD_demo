@@ -8,27 +8,81 @@ export default defineConfig(({ mode }) => ({
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
+      external: ['exceljs/dist/exceljs.bare.min.js'],
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
 
-          if (id.includes('exceljs') || id.includes('/node_modules/file-saver/')) {
-            return 'exceljs-vendor';
+          if (
+            id.includes('/node_modules/jspdf/') ||
+            id.includes('/node_modules/jspdf-autotable/') ||
+            id.includes('/node_modules/dompurify/')
+          ) {
+            return 'jspdf-vendor';
           }
 
           if (
-            id.includes('jspdf') ||
-            id.includes('html2canvas') ||
-            id.includes('canvg') ||
+            id.includes('/node_modules/html2canvas/') ||
+            id.includes('/node_modules/fast-png/') ||
+            id.includes('/node_modules/iobuffer/') ||
+            id.includes('/node_modules/css-line-break/') ||
+            id.includes('/node_modules/text-segmentation/') ||
+            id.includes('/node_modules/utrie/')
+          ) {
+            return 'html2canvas-vendor';
+          }
+
+          if (
+            id.includes('/node_modules/canvg/') ||
             id.includes('/node_modules/core-js/') ||
             id.includes('/node_modules/raf/') ||
             id.includes('/node_modules/stackblur-canvas/') ||
             id.includes('/node_modules/svg-pathdata/') ||
-            id.includes('/node_modules/fast-png/') ||
-            id.includes('/node_modules/iobuffer/') ||
-            id.includes('/node_modules/dompurify/')
+            id.includes('/node_modules/rgbcolor/') ||
+            id.includes('/node_modules/regenerator-runtime/')
           ) {
-            return 'pdf-vendor';
+            return 'canvg-vendor';
+          }
+
+          if (
+            id.includes('/node_modules/jszip/') ||
+            id.includes('/node_modules/fflate/') ||
+            id.includes('/node_modules/pako/') ||
+            id.includes('/node_modules/lie/') ||
+            id.includes('/node_modules/setimmediate/')
+          ) {
+            return 'excel-zip-vendor';
+          }
+
+          if (
+            id.includes('/node_modules/fast-csv/') ||
+            id.includes('/node_modules/@fast-csv/')
+          ) {
+            return 'excel-csv-vendor';
+          }
+
+          if (
+            id.includes('/node_modules/archiver/') ||
+            id.includes('/node_modules/archiver-utils/') ||
+            id.includes('/node_modules/compress-commons/') ||
+            id.includes('/node_modules/tar-stream/') ||
+            id.includes('/node_modules/zip-stream/') ||
+            id.includes('/node_modules/crc32-stream/') ||
+            id.includes('/node_modules/buffer-crc32/')
+          ) {
+            return 'excel-archive-vendor';
+          }
+
+          if (
+            id.includes('exceljs') ||
+            id.includes('/node_modules/dayjs/') ||
+            id.includes('/node_modules/saxes/') ||
+            id.includes('/node_modules/tmp/') ||
+            id.includes('/node_modules/unzipper/') ||
+            id.includes('/node_modules/uuid/') ||
+            id.includes('/node_modules/file-saver/')
+          ) {
+            return 'exceljs-vendor';
           }
 
           if (id.includes('xlsx') || id.includes('cfb') || id.includes('codepage')) {

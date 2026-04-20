@@ -33,7 +33,7 @@
  *   F (18)  ALL monetary values
  */
 
-import ExcelJS from 'exceljs';
+import ExcelJS from 'exceljs/dist/exceljs.bare.min.js';
 import { saveAs } from 'file-saver';
 import apiService from '../api/api-service';
 

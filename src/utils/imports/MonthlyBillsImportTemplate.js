@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs';
+import ExcelJS from 'exceljs/dist/exceljs.bare.min.js';
 import { saveAs } from 'file-saver';
 
 /**
