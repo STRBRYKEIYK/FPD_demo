@@ -1,6 +1,8 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, Link } from 'react-router-dom';
-import FinancePayrollDepartment from './components/department/FinancePayrollDepartment';
-import FinanceDocumentIngestionPage from './features/finance-documents/pages/FinanceDocumentIngestionPage';
+
+const FinancePayrollDepartment = lazy(() => import('./components/department/FinancePayrollDepartment'));
+const FinanceDocumentIngestionPage = lazy(() => import('./features/finance-documents/pages/FinanceDocumentIngestionPage'));
 
 function PlaceholderPage({ title, description }) {
   return (
@@ -23,32 +25,34 @@ function PlaceholderPage({ title, description }) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/jjcewgsaccess/finance" replace />} />
-      <Route path="/jjcewgsaccess/finance" element={<FinancePayrollDepartment />} />
-      <Route
-        path="/jjcewgsaccess/finance/documents/ingestion"
-        element={<FinanceDocumentIngestionPage contextTitle="Finance OCR Demo" />}
-      />
-      <Route
-        path="/employee/dashboard"
-        element={
-          <PlaceholderPage
-            title="Employee Dashboard (Demo)"
-            description="This is a placeholder page in demo mode. Finance features remain fully interactive with mock data."
-          />
-        }
-      />
-      <Route
-        path="/jjctoolbox"
-        element={
-          <PlaceholderPage
-            title="Toolbox (Demo)"
-            description="Toolbox is not included in this standalone FPD demo build."
-          />
-        }
-      />
-      <Route path="*" element={<Navigate to="/jjcewgsaccess/finance" replace />} />
-    </Routes>
+    <Suspense fallback={<div className="min-h-screen bg-stone-100" />}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/jjcewgsaccess/finance" replace />} />
+        <Route path="/jjcewgsaccess/finance" element={<FinancePayrollDepartment />} />
+        <Route
+          path="/jjcewgsaccess/finance/documents/ingestion"
+          element={<FinanceDocumentIngestionPage contextTitle="Finance OCR Demo" />}
+        />
+        <Route
+          path="/employee/dashboard"
+          element={
+            <PlaceholderPage
+              title="Employee Dashboard (Demo)"
+              description="This is a placeholder page in demo mode. Finance features remain fully interactive with mock data."
+            />
+          }
+        />
+        <Route
+          path="/jjctoolbox"
+          element={
+            <PlaceholderPage
+              title="Toolbox (Demo)"
+              description="Toolbox is not included in this standalone FPD demo build."
+            />
+          }
+        />
+        <Route path="*" element={<Navigate to="/jjcewgsaccess/finance" replace />} />
+      </Routes>
+    </Suspense>
   );
 }

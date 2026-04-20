@@ -21,11 +21,6 @@ import {
   handleDuplicateInvoice as handleDuplicateInvoiceHandler,
   showInfo as showInfoHandler,
 } from "../handlers/SalesInvoice-Handlers";
-import {
-  exportInvoicesToCSV,
-  exportInvoicesToExcel,
-  exportInvoicesToPDF,
-} from "../../../utils/finance-import-export";
 
 import ViewRecordModal from "../components/main_ui/ViewRecordModal";
 import { ToastContainer } from "../components/main_ui/Toast";
@@ -36,7 +31,6 @@ import CustomersSection from "./CustomersSection";
 import SalesInvoiceSummary from "./SalesInvoiceSummary";
 import { useToast } from "../hooks/useToast";
 import { useAuth } from "../../../contexts/AuthContext";
-import { generateBeautifulInvoiceReport } from "../../../utils/finance-report-generator";
 import { normalizeInvoiceImportResponse } from "../helpers/importResponseUtils";
 
 // --- Aesthetic UI Components ---
@@ -312,6 +306,41 @@ export default function SalesInvoiceSection({
     });
   };
 
+  const loadInvoiceExportUtils = () => import("../../../utils/finance-import-export");
+  const loadInvoiceReportUtils = () => import("../../../utils/finance-report-generator");
+
+  const handleOfficialReport = async () => {
+    try {
+      const { generateBeautifulInvoiceReport } = await loadInvoiceReportUtils();
+      await generateBeautifulInvoiceReport(activeInvoices);
+    } catch (error) {
+      showError("Failed to generate official report");
+    }
+  };
+
+  const handleExportSelected = async (format) => {
+    const selected = filteredInvoices.filter((inv) => selectedInvoices.includes(inv.id));
+    if (selected.length === 0) {
+      showWarning("Please select at least one invoice to export");
+      return;
+    }
+
+    const dateSuffix = new Date().toISOString().split("T")[0];
+
+    try {
+      const { exportInvoicesToCSV, exportInvoicesToExcel, exportInvoicesToPDF } = await loadInvoiceExportUtils();
+      if (format === "csv") {
+        exportInvoicesToCSV(selected, `invoices_${dateSuffix}.csv`);
+      } else if (format === "excel") {
+        exportInvoicesToExcel(selected, `invoices_${dateSuffix}.xlsx`);
+      } else if (format === "pdf") {
+        exportInvoicesToPDF(selected, `invoices_${dateSuffix}.pdf`);
+      }
+    } catch (error) {
+      showError(`Failed to export invoices as ${format.toUpperCase()}`);
+    }
+  };
+
   const handleRowClick = (invoiceId) => {
     setSelectedInvoiceId(invoiceId);
     setViewModalOpen(true);
@@ -443,7 +472,7 @@ export default function SalesInvoiceSection({
               title="Official Report" description="Generated Excel Masterlist" 
               colorClass="hover:border-emerald-300"
               icon={<LuFileSpreadsheet className="w-5 h-5 text-emerald-500" />} 
-              onClick={() => generateBeautifulInvoiceReport(activeInvoices)} 
+              onClick={handleOfficialReport} 
             />
           </div>
 
@@ -547,13 +576,13 @@ export default function SalesInvoiceSection({
               <button onClick={handleDeleteSelected} disabled={deleting} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50 text-sm font-medium">
                 {deleting ? "Deleting..." : "Delete Selected"}
               </button>
-              <button onClick={() => exportInvoicesToCSV(filteredInvoices.filter((inv) => selectedInvoices.includes(inv.id)), `invoices_${new Date().toISOString().split("T")[0]}.csv`)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
+              <button onClick={() => handleExportSelected("csv")} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
                 <LuDownload className="w-4 h-4" /> CSV
               </button>
-              <button onClick={() => exportInvoicesToExcel(filteredInvoices.filter((inv) => selectedInvoices.includes(inv.id)), `invoices_${new Date().toISOString().split("T")[0]}.xlsx`)} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
+              <button onClick={() => handleExportSelected("excel")} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
                 <LuFileSpreadsheet className="w-4 h-4" /> Excel
               </button>
-              <button onClick={() => exportInvoicesToPDF(filteredInvoices.filter((inv) => selectedInvoices.includes(inv.id)), `invoices_${new Date().toISOString().split("T")[0]}.pdf`)} className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
+              <button onClick={() => handleExportSelected("pdf")} className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
                 <LuFileText className="w-4 h-4" /> PDF
               </button>
             </div>

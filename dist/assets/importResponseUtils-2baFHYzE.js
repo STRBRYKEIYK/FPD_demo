@@ -1,1 +1,2 @@
 const s=t=>Array.isArray(t)?t:[],o=t=>{const e=Number(t);return Number.isFinite(e)?e:0},d=t=>{const e=t?.data??t??{},a=t?.stats||e.stats||{},r=s(t?.skipped_details),i=s(e.skipped_details);return{importedCount:o(a.imported),updatedCount:o(a.updated),skippedCount:o(a.skipped),skippedDetails:r.length>0?r:i}},n=t=>{const e=t?.data??t??{};return{createdInvoices:s(e.created_invoices),updatedInvoices:s(e.updated_invoices),errors:s(e.errors)}},p=t=>d(t);export{d as a,p as b,n};
+//# sourceMappingURL=importResponseUtils-2baFHYzE.js.map

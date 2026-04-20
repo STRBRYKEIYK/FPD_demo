@@ -1,15 +1,6 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { LuX, LuDownload, LuUpload, LuFileSpreadsheet, LuFileText, LuCircleAlert, LuCircleCheck, LuLoader } from 'react-icons/lu'
-import {
-  exportInvoicesToCSV,
-  exportInvoicesToExcel,
-  exportInvoicesToPDF,
-  parseInvoiceCSV,
-  parseInvoiceExcel,
-  validateImportedInvoices,
-  downloadInvoiceTemplate
-} from '../../../../utils/finance-import-export'
 
 export default function ImportExportModal({ 
   isOpen, 
@@ -31,10 +22,18 @@ export default function ImportExportModal({
   const [importLoading, setImportLoading] = useState(false)
   const fileInputRef = useRef(null)
 
+  const loadFinanceImportExportUtils = () => import('../../../../utils/finance-import-export')
+
   if (!isOpen) return null
 
-  const handleExport = (format) => {
+  const handleExport = async (format) => {
     try {
+      const {
+        exportInvoicesToCSV,
+        exportInvoicesToExcel,
+        exportInvoicesToPDF,
+      } = await loadFinanceImportExportUtils()
+
       if (format === 'csv') {
         exportInvoicesToCSV(invoices, `sales_invoices_export_${new Date().toISOString().split('T')[0]}.csv`)
       } else if (format === 'excel') {
@@ -49,8 +48,9 @@ export default function ImportExportModal({
     }
   }
 
-  const handleDownloadTemplate = (format) => {
+  const handleDownloadTemplate = async (format) => {
     try {
+      const { downloadInvoiceTemplate } = await loadFinanceImportExportUtils()
       downloadInvoiceTemplate(format)
       showToast?.('Template downloaded successfully', 'success')
     } catch (error) {
@@ -68,6 +68,12 @@ export default function ImportExportModal({
 
     try {
       setImportLoading(true)
+
+      const {
+        parseInvoiceCSV,
+        parseInvoiceExcel,
+        validateImportedInvoices,
+      } = await loadFinanceImportExportUtils()
       
       const fileExtension = file.name.split('.').pop().toLowerCase()
       
