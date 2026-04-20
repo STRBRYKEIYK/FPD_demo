@@ -8,7 +8,6 @@ export default defineConfig(({ mode }) => ({
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      external: ['exceljs/dist/exceljs.bare.min.js'],
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return;

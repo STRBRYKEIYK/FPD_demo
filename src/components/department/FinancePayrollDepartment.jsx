@@ -501,7 +501,7 @@ function FinancePayrollDepartment() {
           <div className={sidebarOpen ? "flex items-center gap-3" : "hidden lg:flex lg:justify-center w-full"}>
             <div className={`relative shrink-0 rounded-xl ring-1 overflow-hidden ${t.logoRing}`}>
               <img
-                src="http://jjcenggworks.com/api/images/finance/finance_logo.png"
+                src="https://jjcenggworks.com/api/images/finance/finance_logo.png"
                 alt="Finance Hub"
                 className={`h-8 w-8 select-none cursor-pointer object-cover ${logoSpin ? "animate-coin-spin" : ""}`}
                 style={{ ...spinStyle }}
