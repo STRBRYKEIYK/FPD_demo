@@ -12,11 +12,22 @@ export default defineConfig(({ mode }) => ({
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
 
-          if (id.includes('exceljs')) {
+          if (id.includes('exceljs') || id.includes('/node_modules/file-saver/')) {
             return 'exceljs-vendor';
           }
 
-          if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('canvg')) {
+          if (
+            id.includes('jspdf') ||
+            id.includes('html2canvas') ||
+            id.includes('canvg') ||
+            id.includes('/node_modules/core-js/') ||
+            id.includes('/node_modules/raf/') ||
+            id.includes('/node_modules/stackblur-canvas/') ||
+            id.includes('/node_modules/svg-pathdata/') ||
+            id.includes('/node_modules/fast-png/') ||
+            id.includes('/node_modules/iobuffer/') ||
+            id.includes('/node_modules/dompurify/')
+          ) {
             return 'pdf-vendor';
           }
 
@@ -28,7 +39,12 @@ export default defineConfig(({ mode }) => ({
             return 'react-pdf-vendor';
           }
 
-          if (id.includes('framer-motion')) {
+          if (
+            id.includes('framer-motion') ||
+            id.includes('/node_modules/motion-dom/') ||
+            id.includes('/node_modules/motion-utils/') ||
+            id.includes('/node_modules/es-toolkit/')
+          ) {
             return 'motion-vendor';
           }
 
