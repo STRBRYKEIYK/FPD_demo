@@ -26,15 +26,46 @@
           });
         }
 
-        function remapToDistAssets(assetPath, distIndexUrl) {
+        function getAssetCandidates(assetPath, distIndexUrl) {
           const absoluteUrl = new URL(assetPath, distIndexUrl).toString();
-          if (absoluteUrl.includes("/dist/assets/")) {
-            return absoluteUrl;
-          }
+          const candidates = [absoluteUrl];
           if (absoluteUrl.includes("/assets/")) {
-            return absoluteUrl.replace("/assets/", "/dist/assets/");
+            candidates.push(absoluteUrl.replace("/assets/", "/dist/assets/"));
           }
-          return absoluteUrl;
+          if (absoluteUrl.includes("/dist/assets/")) {
+            candidates.push(absoluteUrl.replace("/dist/assets/", "/assets/"));
+          }
+          return [...new Set(candidates)];
+        }
+
+        async function resolveFirstAvailableUrl(candidates) {
+          for (const candidate of candidates) {
+            try {
+              const response = await fetch(candidate, { method: "HEAD", cache: "no-store" });
+              if (response.ok) {
+                return candidate;
+              }
+            } catch (_error) {
+              // Try the next candidate URL.
+            }
+          }
+          return candidates[0];
+        }
+
+        async function loadFirstAvailableModule(candidates) {
+          let lastError = null;
+          for (const candidate of candidates) {
+            try {
+              await loadModuleScript(candidate);
+              return;
+            } catch (error) {
+              lastError = error;
+            }
+          }
+          if (lastError instanceof Error) {
+            throw lastError;
+          }
+          throw new Error("No module candidate could be loaded");
         }
 
         function showBootstrapError(message) {
@@ -56,16 +87,17 @@
           const doc = new DOMParser().parseFromString(html, "text/html");
 
           const stylesheetNodes = doc.querySelectorAll('link[rel="stylesheet"][href]');
-          stylesheetNodes.forEach((node) => {
+          for (const node of stylesheetNodes) {
             const href = node.getAttribute("href");
             if (!href) {
-              return;
+              continue;
             }
+
             const link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = remapToDistAssets(href, distIndexUrl);
+            link.href = await resolveFirstAvailableUrl(getAssetCandidates(href, distIndexUrl));
             document.head.appendChild(link);
-          });
+          }
 
           const moduleScript = doc.querySelector('script[type="module"][src]');
           const src = moduleScript?.getAttribute("src");
@@ -73,7 +105,7 @@
             throw new Error("No module script found in dist/index.html");
           }
 
-          await loadModuleScript(remapToDistAssets(src, distIndexUrl));
+          await loadFirstAvailableModule(getAssetCandidates(src, distIndexUrl));
         }
 
         window.addEventListener(

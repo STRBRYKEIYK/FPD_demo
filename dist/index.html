@@ -4,15 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FPD Demo</title>
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <script type="module" crossorigin src="/FPD_demo/assets/index-JVAnMHVV.js"></script>
+    <link rel="icon" type="image/svg+xml" href="/FPD_demo/assets/favicon-CeL-LwwC.svg" />
+    <script type="module" crossorigin src="/FPD_demo/assets/index-D2xNg47l.js"></script>
     <link rel="modulepreload" crossorigin href="/FPD_demo/assets/vendor-D_TJI4Qs.js">
     <link rel="modulepreload" crossorigin href="/FPD_demo/assets/excel-zip-vendor-Cg56Rv6R.js">
     <link rel="modulepreload" crossorigin href="/FPD_demo/assets/html2canvas-vendor-BD1F0tPC.js">
     <link rel="modulepreload" crossorigin href="/FPD_demo/assets/jspdf-vendor-BwcXIRHU.js">
     <link rel="modulepreload" crossorigin href="/FPD_demo/assets/icons-vendor-nj_bYq0i.js">
     <link rel="modulepreload" crossorigin href="/FPD_demo/assets/router-vendor-B1Pb4mAx.js">
-    <link rel="stylesheet" crossorigin href="/FPD_demo/assets/index-v7ABoqoh.css">
+    <link rel="stylesheet" crossorigin href="/FPD_demo/assets/index-BOhCLkKW.css">
   </head>
   <body>
     <div id="root"></div>
@@ -34,15 +34,46 @@
           });
         }
 
-        function remapToDistAssets(assetPath, distIndexUrl) {
+        function getAssetCandidates(assetPath, distIndexUrl) {
           const absoluteUrl = new URL(assetPath, distIndexUrl).toString();
-          if (absoluteUrl.includes("/dist/assets/")) {
-            return absoluteUrl;
-          }
+          const candidates = [absoluteUrl];
           if (absoluteUrl.includes("/assets/")) {
-            return absoluteUrl.replace("/assets/", "/dist/assets/");
+            candidates.push(absoluteUrl.replace("/assets/", "/dist/assets/"));
           }
-          return absoluteUrl;
+          if (absoluteUrl.includes("/dist/assets/")) {
+            candidates.push(absoluteUrl.replace("/dist/assets/", "/assets/"));
+          }
+          return [...new Set(candidates)];
+        }
+
+        async function resolveFirstAvailableUrl(candidates) {
+          for (const candidate of candidates) {
+            try {
+              const response = await fetch(candidate, { method: "HEAD", cache: "no-store" });
+              if (response.ok) {
+                return candidate;
+              }
+            } catch (_error) {
+              // Try the next candidate URL.
+            }
+          }
+          return candidates[0];
+        }
+
+        async function loadFirstAvailableModule(candidates) {
+          let lastError = null;
+          for (const candidate of candidates) {
+            try {
+              await loadModuleScript(candidate);
+              return;
+            } catch (error) {
+              lastError = error;
+            }
+          }
+          if (lastError instanceof Error) {
+            throw lastError;
+          }
+          throw new Error("No module candidate could be loaded");
         }
 
         function showBootstrapError(message) {
@@ -64,16 +95,17 @@
           const doc = new DOMParser().parseFromString(html, "text/html");
 
           const stylesheetNodes = doc.querySelectorAll('link[rel="stylesheet"][href]');
-          stylesheetNodes.forEach((node) => {
+          for (const node of stylesheetNodes) {
             const href = node.getAttribute("href");
             if (!href) {
-              return;
+              continue;
             }
+
             const link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = remapToDistAssets(href, distIndexUrl);
+            link.href = await resolveFirstAvailableUrl(getAssetCandidates(href, distIndexUrl));
             document.head.appendChild(link);
-          });
+          }
 
           const moduleScript = doc.querySelector('script[type="module"][src]');
           const src = moduleScript?.getAttribute("src");
@@ -81,7 +113,7 @@
             throw new Error("No module script found in dist/index.html");
           }
 
-          await loadModuleScript(remapToDistAssets(src, distIndexUrl));
+          await loadFirstAvailableModule(getAssetCandidates(src, distIndexUrl));
         }
 
         window.addEventListener(
